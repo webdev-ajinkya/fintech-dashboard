@@ -1,41 +1,43 @@
 export const formatCurrency = (value: number) => {
-    if (value >= 1_000_000) {
-        return `$${(value / 1_000_000).toFixed(1)}M`;
-    }
-    if (value >= 1_000) {
-        return `$${(value / 1_000).toFixed(1)}K`;
-    }
+    if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+    if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}K`;
     return `$${value}`;
 };
 
-export const getStatColors = (change: string) => {
-    // Normalize string (handles spaces + weird minus signs)
-    const cleaned = change
-        .replace(/\s/g, "")     // remove spaces
-        .replace("−", "-")      // normalize unicode minus
-        .replace("%", "");      // remove %
+export const getStatColors = (
+    type: string,
+    change: number,
+    income: number,
+    expense: number
+) => {
+    const isBadState = income < expense;
 
-    const value = Number(cleaned);
-
-    // Negative (red)
-    if (value < 0) {
+    // 🔴 Global bad state
+    if (isBadState) {
         return {
-            text: "text-[#dc2828]",
-            badge: "bg-red-50 text-[#dc2828] dark:bg-red-900/20 dark:text-[#dc2828]",
+            text: "text-red-500",
+            badge: "bg-red-100 text-red-600",
         };
     }
 
-    // Positive (green)
-    if (value > 0) {
-        return {
-            text: "text-[#20ac6b]",
-            badge: "bg-green-50 text-[#20ac6b] dark:bg-green-900/20 dark:text-[#20ac6b]",
-        };
+    let isGood = true;
+
+    switch (type) {
+        case "income":
+        case "balance":
+        case "savings":
+            isGood = true;
+            break;
+
+        case "expense":
+            isGood = change < 0;
+            break;
     }
 
-    // Neutral (0)
     return {
-        text: "text-[#23a997]",
-        badge: "bg-green-50 text-[#23a997] dark:bg-green-900/20 dark:text-[#23a997]",
+        text: isGood ? "text-green-500" : "text-red-500",
+        badge: isGood
+            ? "bg-green-100 text-green-600"
+            : "bg-red-100 text-red-600",
     };
 };

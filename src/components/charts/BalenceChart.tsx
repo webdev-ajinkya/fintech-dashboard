@@ -104,7 +104,7 @@ export default function BalanceChart() {
             {/* HEADER */}
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-sm font-medium dark:text-gray-300">
-                    Balance Overview
+                    Balance Trend
                 </h3>
 
                 {/* FILTER BUTTONS */}

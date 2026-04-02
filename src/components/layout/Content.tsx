@@ -5,7 +5,7 @@ import Balance from "../../../public/balance.png";
 import Income from "../../../public/income.png";
 import Expense from "../../../public/expense.png";
 import Savings from "../../../public/savings.png";
-import { getStatColors } from "@/utils/charts";
+import { formatCurrency, getStatColors } from "@/utils/charts";
 import SpendingChart from "../charts/SpendingChart";
 import TransactionTable from "../charts/TransactionTable";
 import { dashboardData } from "@/mock/ssot";
@@ -41,33 +41,60 @@ const expense = dashboardData.transactions
     .filter(t => t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0);
 
-const balance = income - expense;
+const transactions = dashboardData.transactions;
 
-const savingsRate = Number(((balance / income) * 100).toFixed(1));
+// ✅ Month separation
+const currentMonth = "2026-03";
+const prevMonth = "2026-02";
+
+const currentTx = transactions.filter(t => t.date.startsWith(currentMonth));
+const prevTx = transactions.filter(t => t.date.startsWith(prevMonth));
+
+// ✅ Helpers
+const getTotals = (data: typeof transactions) => {
+    const income = data.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
+    const expense = data.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+    return { income, expense, balance: income - expense };
+};
+
+const calcChange = (curr: number, prev: number) => {
+    if (prev === 0) return 0;
+    return ((curr - prev) / prev) * 100;
+};
+
+// ✅ Current & Previous
+const current = getTotals(currentTx);
+const previous = getTotals(prevTx);
+
+// ✅ Savings
+const currentSavings = (current.balance / current.income) * 100;
+const prevSavings = (previous.balance / previous.income) * 100;
+
+// ✅ Stats
 const stats = [
     {
         title: "balance",
         label: "Balance",
-        value: `$${balance}`,
-        change: `${balance >= 0 ? "+" : ""}${((balance / income) * 100).toFixed(1)}%`,
+        value: current.balance,
+        change: calcChange(current.balance, previous.balance),
     },
     {
         title: "income",
         label: "Income",
-        value: `$${income}`,
-        change: "+0%",
+        value: current.income,
+        change: calcChange(current.income, previous.income),
     },
     {
         title: "expense",
         label: "Expense",
-        value: `$${expense}`,
-        change: `${expense > income ? "+5%" : "-5%"}`, // simple logic
+        value: current.expense,
+        change: calcChange(current.expense, previous.expense),
     },
     {
         title: "savings",
         label: "Savings",
-        value: `${savingsRate}%`,
-        change: `${savingsRate >= 0 ? "+" : ""}${savingsRate}%`,
+        value: Number(currentSavings.toFixed(1)),
+        change: calcChange(currentSavings, prevSavings),
     },
 ];
 
@@ -85,38 +112,38 @@ export default function Content({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="max-w-7xl mx-auto space-y-6">
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    {stats.map((item, i) => (
-                        <div
-                            key={i}
-                            className="relative p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-md transition flex flex-col justify-between"
-                        >
-                            <div className="flex items-center justify-between">
-                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    {item.label}
-                                </p>
 
-                                <img
-                                    src={icons[i]?.src}
-                                    alt="icon"
-                                    className="w-6 h-6 object-contain opacity-70"
-                                />
-                            </div>
+                    {stats.map((item, i) => {
+                        const colors = getStatColors(
+                            item.title,
+                            item.change,
+                            current.income,
+                            current.expense
+                        );
 
-                            <div className="mt-3">
-                                <h3 className={`text-2xl font-semibold tracking-tight ${getStatColors(item.change).text}`}>
-                                    {item.value}
+                        return (
+                            <div key={i} className="p-5 bg-white dark:bg-gray-900 rounded-xl shadow">
+
+                                <div className="flex justify-between">
+                                    <p className="text-sm text-gray-500">{item.label}</p>
+                                    <img src={icons[i]?.src} className="w-6 h-6 opacity-70" />
+                                </div>
+
+                                <h3 className={`text-2xl mt-3 font-semibold ${colors.text}`}>
+                                    {item.title === "savings"
+                                        ? `${item.value}%`
+                                        : formatCurrency(item.value)}
                                 </h3>
+
+                                <span className={`text-xs px-2 py-1 rounded ${colors.badge}`}>
+                                    {item.change > 0 ? "+" : ""}
+                                    {item.change.toFixed(1)}%
+                                </span>
                             </div>
-                            <span
-                                className={`absolute bottom-2 right-2 z-10 text-xs px-2 py-0.5 rounded-md font-medium ${getStatColors(item.change).badge
-                                    }`}
-                            >
-                                {item.change}
-                            </span>
-                        </div>
-                    ))}
+                        );
+                    })}
+
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
