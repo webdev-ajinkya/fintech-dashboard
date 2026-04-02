@@ -1,4 +1,3 @@
-// components/Header.tsx
 import ThemeToggle from "../controls/ThemeToggle";
 import { ProfileMenu } from "./Profile";
 

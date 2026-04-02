@@ -1,4 +1,3 @@
-// components/Sidebar.tsx
 'use client';
 import { Header, Sidebar } from "@/components";
 import Content from "@/components/layout/Content";

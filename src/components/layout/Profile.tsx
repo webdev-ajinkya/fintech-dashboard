@@ -1,12 +1,26 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export function ProfileMenu() {
     const [open, setOpen] = useState(false);
     const [mode, setMode] = useState("view");
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setOpen(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     return (
-        <div className="relative">
-            {/* Avatar */}
+        <div ref={menuRef} className="relative">
             <button
                 onClick={() => setOpen(!open)}
                 className="h-8 w-8 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-full flex items-center justify-center text-xs font-semibold transition"
@@ -14,7 +28,6 @@ export function ProfileMenu() {
                 ET
             </button>
 
-            {/* Dropdown */}
             {open && (
                 <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-lg rounded-lg p-3 space-y-3 z-50 transition">
 
@@ -35,15 +48,12 @@ export function ProfileMenu() {
                         </button>
                     </div>
 
-                    {/* Mode Label */}
                     <div className="text-[10px] text-gray-500 dark:text-gray-400 text-right">
                         {mode === "admin" ? "Admin" : "View"}
                     </div>
 
-                    {/* Divider */}
                     <div className="border-t border-gray-200 dark:border-gray-800" />
 
-                    {/* Logout */}
                     <button
                         onClick={() => setOpen(false)}
                         className="w-full text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded py-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 transition"

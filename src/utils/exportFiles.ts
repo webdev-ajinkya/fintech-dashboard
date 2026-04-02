@@ -1,6 +1,6 @@
 export function exportToCSV(data: any[], filename = "data.csv") {
     const csv = [
-        Object.keys(data[0]).join(","), // header
+        Object.keys(data[0]).join(","), 
         ...data.map(row => Object.values(row).join(","))
     ].join("\n");
 
