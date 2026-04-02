@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* smooth theme transition */
+* {
+    @apply transition-colors duration-300 ease-in-out;
+}
+
+body {
+    @apply bg-gray-100 text-gray-900;
+}
+
+.dark body {
+    @apply bg-gray-950 text-gray-100;
+}
