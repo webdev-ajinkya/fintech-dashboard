@@ -12,6 +12,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { useState } from "react";
 
+
 ChartJS.register(
     LineElement,
     CategoryScale,
@@ -19,21 +20,21 @@ ChartJS.register(
     PointElement,
     Tooltip,
     Legend
-);
+);  
 
 const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
 
 const datasetMap = {
-    income: [3000, 4000, 3500, 5000, 6000, 8540],
-    expense: [1000, 1000, 1000, 1000, 1000, 1397],
+    income: [3000, 4000, 3000, 5000, 6000, 8000],
+    expense: [1000, 3000, 1000, 2000, 1000, 2000],
 };
 
 const formatCurrency = (value: number) => {
     if (value >= 1_000_000) {
-        return `$${(value / 1_000_000).toFixed(1).replace(".0", "")}M`;
+        return `$${Math.round(value / 1_000_000)}M`;
     }
     if (value >= 1_000) {
-        return `$${(value / 1_000).toFixed(1).replace(".0", "")}K`;
+        return `$${Math.round(value / 1_000)}K`;
     }
     return `$${value}`;
 };
@@ -47,8 +48,8 @@ export default function BalanceChart() {
             {
                 label: "Income",
                 data: datasetMap.income,
-                borderColor: "#16a34a",
-                backgroundColor: "rgba(22,163,74,0.1)",
+                borderColor: "#20ac6b",
+                backgroundColor: "rgba(32,172,107,0.1)",
                 tension: 0.4,
                 pointRadius: 3,
                 hidden: filter === "expense",
@@ -56,8 +57,8 @@ export default function BalanceChart() {
             {
                 label: "Expense",
                 data: datasetMap.expense,
-                borderColor: "#dc2626",
-                backgroundColor: "transparent",
+                borderColor: "#dc2828",
+                backgroundColor: "rgba(220,40,40,0.08)",
                 tension: 0,
                 pointRadius: 2,
                 hidden: filter === "income",
