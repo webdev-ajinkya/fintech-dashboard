@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
-import { exportToCSV, exportToJSON } from "@/utils/exportFiles";
-
-import CSV from "../../../public/csv.png";
-import JSON from "../../../public/json.png";
-import ExportFile from "../../../public/export.png";
+import { exportToCSV, exportToJSON } from "@/utils/exportFiles";;
 
 export default function ExportMenu({ data }: { data: any[] }) {
     const [open, setOpen] = useState(false);
@@ -35,14 +30,6 @@ export default function ExportMenu({ data }: { data: any[] }) {
         hover:bg-gray-50 dark:hover:bg-gray-800 
         active:scale-95 transition-all duration-200"
             >
-                {/* Replace emoji with image */}
-                <Image
-                    src={ExportFile}
-                    alt="export"
-                    width={14}
-                    height={14}
-                    className="opacity-70"
-                />
                 Export
             </button>
 
@@ -68,7 +55,6 @@ export default function ExportMenu({ data }: { data: any[] }) {
           hover:bg-gray-100 dark:hover:bg-gray-800 
           transition flex items-center gap-2"
                 >
-                    <Image src={CSV} alt="csv" width={16} height={16} />
                     Export CSV
                 </button>
 
@@ -82,7 +68,6 @@ export default function ExportMenu({ data }: { data: any[] }) {
           hover:bg-gray-100 dark:hover:bg-gray-800 
           transition flex items-center gap-2"
                 >
-                    <Image src={JSON} alt="json" width={16} height={16} />
                     Export JSON
                 </button>
             </div>

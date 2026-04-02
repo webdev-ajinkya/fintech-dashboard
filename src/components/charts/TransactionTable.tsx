@@ -1,4 +1,5 @@
 "use client";
+import { dashboardData } from "@/mock/ssot";
 import React, { useState } from "react";
 
 type Transaction = {
@@ -12,25 +13,10 @@ type Transaction = {
 
 const categories = ["Food", "Travel", "Shopping", "Bills", "Salary"];
 
-export default function TableInsights() {
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      id: 1,
-      date: "2026-04-01",
-      description: "Groceries",
-      category: "Food",
-      amount: 120,
-      type: "expense",
-    },
-    {
-      id: 2,
-      date: "2026-04-02",
-      description: "Salary",
-      category: "Salary",
-      amount: 2000,
-      type: "income",
-    },
-  ]);
+export default function TransactionTable() {
+  const [transactions, setTransactions] = useState(
+    dashboardData.transactions
+  );
 
   const [showForm, setShowForm] = useState(false);
 
@@ -108,27 +94,57 @@ export default function TableInsights() {
       </button>
     </div>
 
-    {/* ADD FORM */}
     {showForm && (
-      <div className="grid grid-cols-2 gap-3 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-        <input type="date" onChange={(e) => setForm({ ...form, date: e.target.value })} className={inputStyle} />
-        <input placeholder="Description" onChange={(e) => setForm({ ...form, description: e.target.value })} className={inputStyle} />
+      <div className="lg:col-span-2 h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-3">
 
-        <select onChange={(e) => setForm({ ...form, category: e.target.value })} className={inputStyle}>
-          {categories.map((c) => (
-            <option key={c}>{c}</option>
-          ))}
-        </select>
+        {/* Row 1 */}
+        <div className="grid grid-cols-2 gap-3">
+          <input
+            type="date"
+            onChange={(e) => setForm({ ...form, date: e.target.value })}
+            className={inputStyle}
+          />
+          <input
+            type="number"
+            placeholder="Amount"
+            onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })}
+            className={inputStyle}
+          />
+        </div>
 
-        <input type="number" placeholder="Amount" onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })} className={inputStyle} />
+        {/* Row 2 */}
+        <input
+          placeholder="Description"
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          className={inputStyle}
+        />
 
-        <select onChange={(e) => setForm({ ...form, type: e.target.value as any })} className={`${inputStyle} col-span-2`}>
-          <option value="expense">Expense</option>
-          <option value="income">Income</option>
-        </select>
+        {/* Row 3 */}
+        <div className="grid grid-cols-2 gap-3">
+          <select
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
+            className={inputStyle}
+          >
+            {categories.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </select>
 
-        <button onClick={handleAdd} className="col-span-2 bg-[#23a997] hover:opacity-90 text-white py-2 rounded-md text-xs">
-          Save
+          <select
+            onChange={(e) => setForm({ ...form, type: e.target.value as any })}
+            className={inputStyle}
+          >
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+
+        {/* Action */}
+        <button
+          onClick={handleAdd}
+          className="bg-[#23a997] hover:opacity-90 text-white py-2 rounded-md text-xs mt-2"
+        >
+          Save Transaction
         </button>
       </div>
     )}
@@ -155,44 +171,58 @@ export default function TableInsights() {
       <div className="grid gap-3 md:grid-cols-4 mt-3">
         <input type="date" onChange={(e) => setFilters({ ...filters, from: e.target.value })} className={inputStyle} />
         <input type="date" onChange={(e) => setFilters({ ...filters, to: e.target.value })} className={inputStyle} />
-        <input type="number" placeholder="Min ₹" onChange={(e) => setFilters({ ...filters, min: e.target.value })} className={inputStyle} />
-        <input type="number" placeholder="Max ₹" onChange={(e) => setFilters({ ...filters, max: e.target.value })} className={inputStyle} />
+        <input type="number" placeholder="Min $" onChange={(e) => setFilters({ ...filters, min: e.target.value })} className={inputStyle} />
+        <input type="number" placeholder="Max $" onChange={(e) => setFilters({ ...filters, max: e.target.value })} className={inputStyle} />
       </div>
     </div>
 
     {/* TABLE */}
-    <div className="overflow-auto border border-gray-200 dark:border-gray-800 rounded-lg">
+    <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+
+      {/* TABLE HEADER */}
       <table className="w-full text-xs">
         <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500">
           <tr>
-            <th className="py-2 px-3 text-left">Date</th>
-            <th className="px-3 text-left">Description</th>
-            <th className="px-3 text-left">Category</th>
-            <th className="px-3 text-right">Amount</th>
+            <th className="py-2 px-3 text-left w-[22%]">Date</th>
+            <th className="px-3 text-left w-[38%]">Description</th>
+            <th className="px-3 text-left w-[20%]">Category</th>
+            <th className="px-3 text-right w-[20%]">Amount</th>
           </tr>
         </thead>
-
-        <tbody>
-          {sorted.length === 0 && (
-            <tr>
-              <td colSpan={4} className="text-center py-6 text-gray-400">
-                No transactions found
-              </td>
-            </tr>
-          )}
-
-          {sorted.map((t) => (
-            <tr key={t.id} className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
-              <td className="py-2 px-3">{t.date}</td>
-              <td className="px-3">{t.description}</td>
-              <td className="px-3">{t.category}</td>
-              <td className={`px-3 text-right font-semibold ${t.type === "income" ? "text-green-500" : "text-red-500"}`}>
-                ₹{t.amount}
-              </td>
-            </tr>
-          ))}
-        </tbody>
       </table>
+
+      {/* SCROLLABLE BODY */}
+      <div className="max-h-[150px] overflow-y-auto">
+        <table className="w-full text-xs table-fixed">
+          <tbody>
+            {sorted.map((t) => (
+              <tr
+                key={t.id}
+                className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <td className="py-2 px-3 w-[22%]">
+                  {t.date}
+                </td>
+
+                <td className="px-3 w-[38%] truncate">
+                  {t.description}
+                </td>
+
+                <td className="px-3 w-[20%]">
+                  {t.category}
+                </td>
+
+                <td
+                  className={`px-3 text-right w-[20%] font-semibold ${t.type === "income" ? "text-green-500" : "text-red-500"
+                    }`}
+                >
+                  ${t.amount}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 

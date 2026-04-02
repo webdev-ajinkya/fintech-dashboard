@@ -8,14 +8,19 @@ import {
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
 
+import { groupByCategory } from "@/utils/dataHelpers";
+import { dashboardData } from "@/mock/ssot";
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function SpendingChart({ data }: { data: any[] }) {
+export default function SpendingChart() {
+    const spending = groupByCategory(dashboardData.transactions);
+
     const chartData = {
-        labels: data.map((d) => d.name),
+        labels: spending.map((d) => d.name),
         datasets: [
             {
-                data: data.map((d) => d.amount),
+                data: spending.map((d) => d.amount),
                 backgroundColor: [
                     "#6366f1",
                     "#22c55e",
@@ -31,8 +36,21 @@ export default function SpendingChart({ data }: { data: any[] }) {
     const options = {
         plugins: {
             legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function (context: any) {
+                        const data = context.dataset.data;
+                        const total = data.reduce((sum: number, val: number) => sum + val, 0);
+
+                        const value = context.raw;
+                        const percentage = ((value / total) * 100).toFixed(1);
+
+                        return `${context.label}: ${percentage}%`;
+                    },
+                },
+            },
         },
-        cutout: "65%", // makes it donut style
+        cutout: "65%",
     };
 
     return <Pie data={chartData} options={options} />;

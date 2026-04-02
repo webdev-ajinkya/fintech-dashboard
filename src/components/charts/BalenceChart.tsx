@@ -11,7 +11,8 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { useState } from "react";
-
+import { groupByMonth } from "@/utils/dataHelpers";
+import { dashboardData } from "@/mock/ssot";
 
 ChartJS.register(
     LineElement,
@@ -20,47 +21,40 @@ ChartJS.register(
     PointElement,
     Tooltip,
     Legend
-);  
-
-const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-
-const datasetMap = {
-    income: [3000, 4000, 3000, 5000, 6000, 8000],
-    expense: [1000, 3000, 1000, 2000, 1000, 2000],
-};
+);
 
 const formatCurrency = (value: number) => {
-    if (value >= 1_000_000) {
-        return `$${Math.round(value / 1_000_000)}M`;
-    }
-    if (value >= 1_000) {
-        return `$${Math.round(value / 1_000)}K`;
-    }
+    if (value >= 1_000_000) return `$${Math.round(value / 1_000_000)}M`;
+    if (value >= 1_000) return `$${Math.round(value / 1_000)}K`;
     return `$${value}`;
 };
 
 export default function BalanceChart() {
     const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
 
+    const monthly = groupByMonth(dashboardData.transactions);
+
     const data = {
-        labels,
+        labels: monthly.map((m) => m.month),
         datasets: [
             {
                 label: "Income",
-                data: datasetMap.income,
+                data: monthly.map((m) => m.income),
                 borderColor: "#20ac6b",
                 backgroundColor: "rgba(32,172,107,0.1)",
                 tension: 0.4,
                 pointRadius: 3,
+                fill: true,
                 hidden: filter === "expense",
             },
             {
                 label: "Expense",
-                data: datasetMap.expense,
+                data: monthly.map((m) => m.expense),
                 borderColor: "#dc2828",
                 backgroundColor: "rgba(220,40,40,0.08)",
-                tension: 0,
+                tension: 0.4,
                 pointRadius: 2,
+                fill: true,
                 hidden: filter === "income",
             },
         ],
@@ -72,9 +66,11 @@ export default function BalanceChart() {
         plugins: {
             legend: {
                 display: false,
-                position: "top" as const,
             },
             tooltip: {
+                backgroundColor: "#111",
+                padding: 10,
+                cornerRadius: 6,
                 callbacks: {
                     label: function (context: any) {
                         return `${context.dataset.label}: ${formatCurrency(
@@ -89,10 +85,9 @@ export default function BalanceChart() {
                 grid: { display: false },
             },
             y: {
-                min: 0,
-                max: 10000,
+                beginAtZero: true,
                 ticks: {
-                    stepSize: 3000,
+                    stepSize: 2000,
                     callback: function (value: any) {
                         return formatCurrency(Number(value));
                     },
@@ -106,12 +101,13 @@ export default function BalanceChart() {
 
     return (
         <div className="flex flex-col h-full w-full">
-            {/* Header */}
+            {/* HEADER */}
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                <h3 className="text-sm font-medium dark:text-gray-300">
                     Balance Overview
                 </h3>
 
+                {/* FILTER BUTTONS */}
                 <div className="flex gap-2">
                     {[
                         { key: "all", label: "All" },
@@ -121,9 +117,10 @@ export default function BalanceChart() {
                         <button
                             key={item.key}
                             onClick={() => setFilter(item.key as any)}
-                            className={`text-xs px-3 py-1 rounded-md border transition ${filter === item.key
-                                ? "bg-gray-900 text-white dark:bg-white dark:text-black"
-                                : "text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700"
+                            className={`text-xs px-3 py-1 rounded-md border transition
+                ${filter === item.key
+                                    ? "bg-[#23a997] text-white border-[#23a997]"
+                                    : "text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
                                 }`}
                         >
                             {item.label}
@@ -132,6 +129,7 @@ export default function BalanceChart() {
                 </div>
             </div>
 
+            {/* CHART */}
             <div className="relative flex-1 w-full">
                 <Line data={data} options={options} />
             </div>
