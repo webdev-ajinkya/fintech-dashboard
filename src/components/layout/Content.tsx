@@ -7,7 +7,7 @@ import Balance from "../../../public/balance.png";
 import Income from "../../../public/income.png";
 import Expense from "../../../public/expense.png";
 import Savings from "../../../public/savings.png";
-import { getValueColor } from "@/utils/charts";
+import { getStatColors } from "@/utils/charts";
 
 const icons = [Balance, Income, Expense, Savings];
 
@@ -50,7 +50,7 @@ export default function Content({ children }: { children: React.ReactNode }) {
                             </div>
 
                             <div className="mt-3">
-                                <h3 className={`text-2xl font-semibold tracking-tight ${getValueColor(item.title)}`}>
+                                <h3 className={`text-2xl font-semibold tracking-tight ${getStatColors(item.title).text}`}>
                                     {item.value}
                                 </h3>
 
@@ -60,15 +60,8 @@ export default function Content({ children }: { children: React.ReactNode }) {
                                     </p>
                                 )}
                             </div>
-
                             <span
-                                className={`absolute bottom-2 right-2 z-10 text-xs px-2 py-0.5 rounded-md font-medium ${item.title === "Savings Rate"
-                                    ? "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400"
-                                    : item.trend === "up"
-                                        ? "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400"
-                                        : item.trend === "down"
-                                            ? "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
-                                            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                                className={`absolute bottom-2 right-2 z-10 text-xs px-2 py-0.5 rounded-md font-medium ${getStatColors(item.title).badge
                                     }`}
                             >
                                 {item.change}

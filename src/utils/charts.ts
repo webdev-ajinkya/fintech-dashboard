@@ -8,18 +8,37 @@ export const formatCurrency = (value: number) => {
     return `$${value}`;
 };
 
-export const getValueColor = (title: string) => {
+export const getStatColors = (title: string) => {
     switch (title) {
         case "Total Balance":
-            return "text-[#23a997]";
+            return {
+                text: "text-[#23a997]",
+                badge: "bg-green-50 text-[#23a997] dark:bg-green-900/20 dark:text-[#23a997]",
+            };
+
         case "Total Income":
-            return "text-[#20ac6b]";
+            return {
+                text: "text-[#20ac6b]",
+                badge: "bg-green-50 text-[#20ac6b] dark:bg-green-900/20 dark:text-[#20ac6b]",
+            };
+
         case "Total Expense":
-            return "text-[#dc2828]";
+            return {
+                text: "text-[#dc2828]",
+                badge: "bg-red-50 text-[#dc2828] dark:bg-red-900/20 dark:text-[#dc2828]",
+            };
+
         case "Savings":
         case "Savings Rate":
-            return "text-[#23a997]";
+            return {
+                text: "text-[#23a997]",
+                badge: "bg-green-50 text-[#23a997] dark:bg-green-900/20 dark:text-[#23a997]",
+            };
+
         default:
-            return "text-gray-900 dark:text-white";
+            return {
+                text: "text-gray-900 dark:text-white",
+                badge: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+            };
     }
 };
