@@ -10,6 +10,7 @@ import Savings from "../../../public/savings.png";
 import { getStatColors } from "@/utils/charts";
 import SpendingChart from "../charts/SpendingChart";
 import { spendingData } from "@/mock/spend";
+import TableInsights from "../charts/TableInsights";
 
 const icons = [Balance, Income, Expense, Savings];
 
@@ -18,6 +19,19 @@ const dummyData = [
     { name: "Travel", amount: 500 },
     { name: "Shopping", amount: 800 },
 ];
+
+const totalExpense = spendingData.reduce((acc, item) => acc + item.amount, 0);
+
+const topSpending = spendingData.reduce((max, item) =>
+    item.amount > max.amount ? item : max,
+    spendingData[0]
+);
+
+const avgExpense = Math.round(totalExpense / spendingData.length);
+
+// Mock trends (replace later with real data)
+const incomeTrend = "+12%";
+const expenseTrend = "-5%";
 
 export default function Content({ children }: { children: React.ReactNode }) {
     return (
@@ -130,30 +144,52 @@ export default function Content({ children }: { children: React.ReactNode }) {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-                    <div className="lg:col-span-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-3">
-                        <div className="h-5 w-40 bg-gray-200 dark:bg-gray-700 rounded" />
 
-                        <div className="space-y-2 overflow-y-auto pr-1">
-                            {[...Array(4)].map((_, i) => (
-                                <div
-                                    key={i}
-                                    className="h-10 bg-gray-100 dark:bg-gray-800 rounded"
-                                />
-                            ))}
+                    <TableInsights />
+
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-4">
+
+                        {/* Title */}
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                            Insights
+                        </h3>
+
+                        {/* Top Spending */}
+                        <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
+                            <p className="text-xs text-gray-500">Top Spending</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                {topSpending.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                                ${topSpending.amount}
+                            </p>
                         </div>
-                    </div>
 
-                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-3">
-                        <div className="h-5 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
+                        {/* Trends */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
+                                <p className="text-xs text-gray-500">Income Trend</p>
+                                <p className="text-sm font-semibold text-green-500">
+                                    {incomeTrend}
+                                </p>
+                            </div>
 
-                        <div className="space-y-3 overflow-y-auto pr-1">
-                            {[...Array(2)].map((_, i) => (
-                                <div
-                                    key={i}
-                                    className="h-16 bg-gray-100 dark:bg-gray-800 rounded"
-                                />
-                            ))}
+                            <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
+                                <p className="text-xs text-gray-500">Expense Trend</p>
+                                <p className="text-sm font-semibold text-red-500">
+                                    {expenseTrend}
+                                </p>
+                            </div>
                         </div>
+
+                        {/* Average Expense */}
+                        <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800">
+                            <p className="text-xs text-gray-500">Avg Expense</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                ${avgExpense}
+                            </p>
+                        </div>
+
                     </div>
                 </div>
 
