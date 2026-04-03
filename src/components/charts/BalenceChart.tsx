@@ -31,6 +31,13 @@ const formatCurrency = (value: number) => {
     return `$${value}`;
 };
 
+const createGradient = (ctx: any, chartArea: any, color: string) => {
+    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+    gradient.addColorStop(0, color);          // top (slightly visible)
+    gradient.addColorStop(1, "rgba(255,255,255,0)"); // fade to transparent
+    return gradient;
+};
+
 export default function BalanceChart() {
     const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
 
@@ -43,23 +50,33 @@ export default function BalanceChart() {
                 label: "Income",
                 data: monthly.map((m) => m.income),
                 borderColor: "#20ac6b",
-                backgroundColor: "rgba(32,172,107,0.1)",
+                backgroundColor: (context: any) => {
+                    const { ctx, chartArea } = context.chart;
+                    if (!chartArea) return;
+                    return createGradient(ctx, chartArea, "rgba(32,172,107,0.2)");
+                },
                 tension: 0.4,
                 pointRadius: 3,
                 fill: true,
                 hidden: filter === "expense",
+                order: 1
             },
             {
                 label: "Expense",
                 data: monthly.map((m) => m.expense),
                 borderColor: "#dc2828",
-                backgroundColor: "rgba(220,40,40,0.08)",
+                backgroundColor: (context: any) => {
+                    const { ctx, chartArea } = context.chart;
+                    if (!chartArea) return;
+                    return createGradient(ctx, chartArea, "rgba(220,40,40,0.2)");
+                },
                 tension: 0.4,
                 pointRadius: 2,
                 fill: true,
                 hidden: filter === "income",
+                order: 2
             },
-        ],
+        ]
     };
 
     const options = {

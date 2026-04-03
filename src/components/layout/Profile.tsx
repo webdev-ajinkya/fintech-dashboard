@@ -35,7 +35,7 @@ export function ProfileMenu() {
                     {/* User + Toggle */}
                     <div className="flex items-center justify-between">
                         <div className="text-xs font-semibold text-gray-800 dark:text-gray-100">
-                            John Doe
+                            Switch User
                         </div>
 
                         <button
