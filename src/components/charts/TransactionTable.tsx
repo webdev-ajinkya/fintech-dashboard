@@ -15,8 +15,8 @@ const categories = ["Food", "Travel", "Shopping", "Bills", "Salary"];
 
 export default function TransactionTable() {
   // ✅ Load from localStorage (fallback to mock data)
-  const { transactions, setTransactions } = useDashboard();
-
+  const { transactions, setTransactions, mode } = useDashboard();
+  const isAdmin = mode === "admin";
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -106,15 +106,17 @@ export default function TransactionTable() {
           Transactions
         </h3>
 
-        <button
-          onClick={() => {
-            setShowForm(!showForm);
-            setEditingId(null);
-          }}
-          className="text-xs px-3 py-1 rounded-md bg-[#23a997] hover:opacity-90 text-white"
-        >
-          + Add
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => {
+              setShowForm(!showForm);
+              setEditingId(null);
+            }}
+            className="text-xs px-3 py-1 rounded-md bg-[#23a997] hover:opacity-90 text-white"
+          >
+            + Add
+          </button>
+        )}
       </div>
 
       {/* FORM */}
@@ -229,40 +231,37 @@ export default function TransactionTable() {
       </div>
 
       {/* TABLE */}
-      <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+      <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden max-h-[200px] overflow-y-auto">
         <table className="w-full text-xs">
-          <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500">
+
+          <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 sticky top-0 z-10">
             <tr>
               <th className="py-2 px-3 text-left">Date</th>
               <th className="px-3 text-left">Description</th>
               <th className="px-3 text-left">Category</th>
               <th className="px-3 text-right">Amount</th>
-              <th className="px-3 text-right">Edit</th>
+              {isAdmin && <th className="px-3 text-right">Edit</th>}
             </tr>
           </thead>
-        </table>
 
-        <div className="max-h-[150px] overflow-y-auto">
-          <table className="w-full text-xs">
-            <tbody>
-              {sorted.map((t) => (
-                <tr
-                  key={t.id}
-                  className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+          <tbody>
+            {sorted.map((t) => (
+              <tr
+                key={t.id}
+                className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <td className="py-2 px-3 text-left">{t.date}</td>
+                <td className="px-3 text-left">{t.description}</td>
+                <td className="px-3 text-left">{t.category}</td>
+
+                <td
+                  className={`px-3 text-right font-semibold ${t.type === "income" ? "text-green-500" : "text-red-500"
+                    }`}
                 >
-                  <td className="py-2 px-3">{t.date}</td>
-                  <td className="px-3">{t.description}</td>
-                  <td className="px-3">{t.category}</td>
+                  ${t.amount}
+                </td>
 
-                  <td
-                    className={`px-3 text-right font-semibold ${t.type === "income"
-                      ? "text-green-500"
-                      : "text-red-500"
-                      }`}
-                  >
-                    ${t.amount}
-                  </td>
-
+                {isAdmin && (
                   <td className="px-3 text-right">
                     <button
                       onClick={() => {
@@ -275,11 +274,12 @@ export default function TransactionTable() {
                       Edit
                     </button>
                   </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                )}
+              </tr>
+            ))}
+          </tbody>
+
+        </table>
       </div>
     </div>
   );

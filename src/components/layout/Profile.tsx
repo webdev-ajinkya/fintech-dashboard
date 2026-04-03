@@ -1,9 +1,10 @@
+import { useDashboard } from "@/provider/DashboardContext";
 import { useState, useRef, useEffect } from "react";
 
 export function ProfileMenu() {
     const [open, setOpen] = useState(false);
-    const [mode, setMode] = useState("view");
     const menuRef = useRef<HTMLDivElement>(null);
+    const { mode, setMode } = useDashboard();
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -39,10 +40,10 @@ export function ProfileMenu() {
 
                         <button
                             onClick={() => setMode(mode === "admin" ? "view" : "admin")}
-                            className="relative w-12 h-6 bg-gray-200 dark:bg-gray-700 rounded-full transition"
+                            className="relative w-12 h-6 bg-gray-200 dark:bg-gray-700 rounded-full"
                         >
                             <div
-                                className={`absolute top-1 left-1 h-4 w-4 bg-white dark:bg-gray-300 rounded-full shadow transition-transform ${mode === "admin" ? "translate-x-6" : "translate-x-0"
+                                className={`absolute top-1 left-1 h-4 w-4 bg-white rounded-full transition-transform ${mode === "admin" ? "translate-x-6" : ""
                                     }`}
                             />
                         </button>
