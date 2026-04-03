@@ -9,13 +9,13 @@ import {
 import { Pie } from "react-chartjs-2";
 
 import { groupByCategory } from "@/utils/dataHelpers";
-import { dashboardData } from "@/mock/ssot";
+import { useDashboardData } from "@/hooks/useDashboardData";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function SpendingChart() {
-    const spending = groupByCategory(dashboardData.transactions);
-
+    const { transactions } = useDashboardData();
+    const spending = groupByCategory(transactions);
     const chartData = {
         labels: spending.map((d) => d.name),
         datasets: [

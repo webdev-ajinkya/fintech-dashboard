@@ -8,98 +8,103 @@ import Savings from "../../../public/savings.png";
 import { formatCurrency, getStatColors } from "@/utils/charts";
 import SpendingChart from "../charts/SpendingChart";
 import TransactionTable from "../charts/TransactionTable";
-import { dashboardData } from "@/mock/ssot";
+import { useDashboardData } from "@/hooks/useDashboardData";
 
 const icons = [Balance, Income, Expense, Savings];
 
-const spending = Object.values(
-    dashboardData.transactions
-        .filter(t => t.type === "expense")
-        .reduce((acc, curr) => {
-            if (!acc[curr.category]) {
-                acc[curr.category] = { name: curr.category, amount: 0 };
-            }
-            acc[curr.category].amount += curr.amount;
-            return acc;
-        }, {} as Record<string, { name: string; amount: number }>)
-);
-
-const totalExpense = spending.reduce((acc, item) => acc + item.amount, 0);
-
-const topSpending = spending.reduce((max, item) =>
-    item.amount > max.amount ? item : max,
-    spending[0]
-);
-
-const avgExpense = Math.round(totalExpense / spending.length);
-
-const income = dashboardData.transactions
-    .filter(t => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-const expense = dashboardData.transactions
-    .filter(t => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-const transactions = dashboardData.transactions;
-
-// ✅ Month separation
-const currentMonth = "2026-03";
-const prevMonth = "2026-02";
-
-const currentTx = transactions.filter(t => t.date.startsWith(currentMonth));
-const prevTx = transactions.filter(t => t.date.startsWith(prevMonth));
-
-// ✅ Helpers
-const getTotals = (data: typeof transactions) => {
-    const income = data.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
-    const expense = data.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
-    return { income, expense, balance: income - expense };
-};
-
-const calcChange = (curr: number, prev: number) => {
-    if (prev === 0) return 0;
-    return ((curr - prev) / prev) * 100;
-};
-
-// ✅ Current & Previous
-const current = getTotals(currentTx);
-const previous = getTotals(prevTx);
-
-// ✅ Savings
-const currentSavings = (current.balance / current.income) * 100;
-const prevSavings = (previous.balance / previous.income) * 100;
-
-// ✅ Stats
-const stats = [
-    {
-        title: "balance",
-        label: "Balance",
-        value: current.balance,
-        change: calcChange(current.balance, previous.balance),
-    },
-    {
-        title: "income",
-        label: "Income",
-        value: current.income,
-        change: calcChange(current.income, previous.income),
-    },
-    {
-        title: "expense",
-        label: "Expense",
-        value: current.expense,
-        change: calcChange(current.expense, previous.expense),
-    },
-    {
-        title: "savings",
-        label: "Savings",
-        value: Number(currentSavings.toFixed(1)),
-        change: calcChange(currentSavings, prevSavings),
-    },
-];
-
-
 export default function Content({ children }: { children: React.ReactNode }) {
+    const { transactions } = useDashboardData();
+
+    // ✅ Spending
+    const spending = Object.values(
+        transactions
+            .filter(t => t.type === "expense")
+            .reduce((acc, curr) => {
+                if (!acc[curr.category]) {
+                    acc[curr.category] = { name: curr.category, amount: 0 };
+                }
+                acc[curr.category].amount += curr.amount;
+                return acc;
+            }, {} as Record<string, { name: string; amount: number }>)
+    );
+
+    const totalExpense = spending.reduce((acc, item) => acc + item.amount, 0);
+
+    const topSpending = spending.length
+        ? spending.reduce((max, item) =>
+            item.amount > max.amount ? item : max,
+            spending[0]
+        )
+        : { name: "-", amount: 0 };
+
+    const avgExpense = spending.length
+        ? Math.round(totalExpense / spending.length)
+        : 0;
+
+    // ✅ Income / Expense
+    const income = transactions
+        .filter(t => t.type === "income")
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    const expense = transactions
+        .filter(t => t.type === "expense")
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    // ✅ Month separation
+    const currentMonth = "2026-03";
+    const prevMonth = "2026-02";
+
+    const currentTx = transactions.filter(t => t.date.startsWith(currentMonth));
+    const prevTx = transactions.filter(t => t.date.startsWith(prevMonth));
+
+    // ✅ Helpers
+    const getTotals = (data: typeof transactions) => {
+        const income = data.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
+        const expense = data.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+        return { income, expense, balance: income - expense };
+    };
+
+    const calcChange = (curr: number, prev: number) => {
+        if (prev === 0) return 0;
+        return ((curr - prev) / prev) * 100;
+    };
+
+    // ✅ Current & Previous
+    const current = getTotals(currentTx);
+    const previous = getTotals(prevTx);
+
+    // ✅ Savings
+    const currentSavings = current.income ? (current.balance / current.income) * 100 : 0;
+    const prevSavings = previous.income ? (previous.balance / previous.income) * 100 : 0;
+
+    // ✅ Stats
+    const stats = [
+        {
+            title: "balance",
+            label: "Balance",
+            value: current.balance,
+            change: calcChange(current.balance, previous.balance),
+        },
+        {
+            title: "income",
+            label: "Income",
+            value: current.income,
+            change: calcChange(current.income, previous.income),
+        },
+        {
+            title: "expense",
+            label: "Expense",
+            value: current.expense,
+            change: calcChange(current.expense, previous.expense),
+        },
+        {
+            title: "savings",
+            label: "Savings",
+            value: Number(currentSavings.toFixed(1)),
+            change: calcChange(currentSavings, prevSavings),
+        },
+    ];
+
     return (
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto bg-gray-100 dark:bg-gray-950 transition">
 
@@ -108,7 +113,8 @@ export default function Content({ children }: { children: React.ReactNode }) {
                     Dashboard Overview
                 </h2>
 
-                <ExportMenu data={spending} />
+                {/* ✅ now real data */}
+                <ExportMenu data={transactions} />
             </div>
 
             <div className="max-w-7xl mx-auto space-y-6">
@@ -151,22 +157,18 @@ export default function Content({ children }: { children: React.ReactNode }) {
                         <BalanceChart />
                     </div>
 
-
                     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-4">
 
-                        {/* Title */}
                         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                             Spending Breakdown
                         </h3>
 
-                        {/* Chart */}
                         <div className="h-52 flex items-center justify-center">
                             <div className="w-44 h-44">
                                 <SpendingChart />
                             </div>
                         </div>
 
-                        {/* Detailed tiles */}
                         <div className="space-y-2">
                             {spending.map((item, i) => {
                                 const colors = [
@@ -178,15 +180,9 @@ export default function Content({ children }: { children: React.ReactNode }) {
                                 ];
 
                                 return (
-                                    <div
-                                        key={i}
-                                        className="flex items-center justify-between p-2 rounded-lg bg-gray-100 dark:bg-gray-800"
-                                    >
+                                    <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
                                         <div className="flex items-center gap-2">
-                                            <span
-                                                className="w-3 h-3 rounded-full"
-                                                style={{ backgroundColor: colors[i] }}
-                                            />
+                                            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: colors[i] }} />
                                             <span className="text-sm text-gray-700 dark:text-gray-300">
                                                 {item.name}
                                             </span>
@@ -204,13 +200,12 @@ export default function Content({ children }: { children: React.ReactNode }) {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
                     <TransactionTable />
+
                     <div className="h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-3">
-                        {/* Title */}
                         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                             Insights
                         </h3>
 
-                        {/* Top Spending */}
                         <div className="p-4 rounded-lg bg-gray-100 dark:bg-gray-800 flex justify-between items-center">
                             <div>
                                 <p className="text-xs text-gray-500">Top Spending</p>
@@ -232,7 +227,7 @@ export default function Content({ children }: { children: React.ReactNode }) {
                                 </p>
                             </div>
                             <p className="text-sm font-semibold text-green-500">
-                                {income}
+                                ${income}
                             </p>
                         </div>
 
@@ -245,7 +240,7 @@ export default function Content({ children }: { children: React.ReactNode }) {
                                 </p>
                             </div>
                             <p className="text-sm font-semibold text-red-500">
-                                {expense}
+                                ${expense}
                             </p>
                         </div>
 
@@ -261,7 +256,6 @@ export default function Content({ children }: { children: React.ReactNode }) {
                                 ${avgExpense}
                             </p>
                         </div>
-
                     </div>
                 </div>
 

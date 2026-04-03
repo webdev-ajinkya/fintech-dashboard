@@ -1,6 +1,6 @@
 "use client";
 import { dashboardData } from "@/mock/ssot";
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Transaction = {
   id: number;
@@ -14,11 +14,12 @@ type Transaction = {
 const categories = ["Food", "Travel", "Shopping", "Bills", "Salary"];
 
 export default function TransactionTable() {
-  const [transactions, setTransactions] = useState(
-    dashboardData.transactions
-  );
+  // ✅ Load from localStorage (fallback to mock data)
+  const [transactions, setTransactions] = useState<Transaction[]>(dashboardData.transactions as Transaction[]);
+  const [mounted, setMounted] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const [filters, setFilters] = useState({
     search: "",
@@ -38,13 +39,43 @@ export default function TransactionTable() {
     amount: 0,
     type: "expense",
   });
+  useEffect(() => {
+    const saved = localStorage.getItem("transactions");
+    if (saved) {
+      setTransactions(JSON.parse(saved));
+    }
+    setMounted(true);
+  }, []);
+  // ✅ Auto-save to localStorage
+  useEffect(() => {
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+  }, [transactions]);
 
-  const handleAdd = () => {
+  // ✅ ADD + EDIT HANDLER
+  const handleSave = () => {
     if (!form.date || !form.description) return;
 
-    setTransactions([...transactions, { ...form, id: Date.now() }]);
-    setShowForm(false);
+    if (editingId) {
+      setTransactions((prev) =>
+        prev.map((t) =>
+          t.id === editingId ? { ...form, id: editingId } : t
+        )
+      );
+    } else {
+      setTransactions([...transactions, { ...form, id: Date.now() }]);
+    }
 
+    setShowForm(false);
+    setEditingId(null);
+
+    setForm({
+      id: Date.now(),
+      date: "",
+      description: "",
+      category: "Food",
+      amount: 0,
+      type: "expense",
+    });
   };
 
   const filtered = transactions.filter((t) => {
@@ -67,7 +98,6 @@ export default function TransactionTable() {
     if (filters.max && t.amount > Number(filters.max)) return false;
 
     return true;
-
   });
 
   const sorted = [...filtered].sort(
@@ -78,153 +108,190 @@ export default function TransactionTable() {
   const inputStyle =
     "p-2 text-xs rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-[#23a997]";
 
-  return (<div className="lg:col-span-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-4">
+  return (
+    <div className="lg:col-span-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-4">
 
-    {/* HEADER */}
-    <div className="flex justify-between items-center">
-      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-        Transactions
-      </h3>
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+          Transactions
+        </h3>
 
-      <button
-        onClick={() => setShowForm(!showForm)}
-        className="text-xs px-3 py-1 rounded-md bg-[#23a997] hover:opacity-90 text-white"
-      >
-        + Add
-      </button>
-    </div>
+        <button
+          onClick={() => {
+            setShowForm(!showForm);
+            setEditingId(null);
+          }}
+          className="text-xs px-3 py-1 rounded-md bg-[#23a997] hover:opacity-90 text-white"
+        >
+          + Add
+        </button>
+      </div>
 
-    {showForm && (
-      <div className="lg:col-span-2 h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-3">
+      {/* FORM */}
+      {showForm && (
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-3">
 
-        {/* Row 1 */}
-        <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="date"
+              value={form.date}
+              onChange={(e) =>
+                setForm({ ...form, date: e.target.value })
+              }
+              className={inputStyle}
+            />
+
+            <input
+              type="number"
+              value={form.amount}
+              placeholder="Amount"
+              onChange={(e) =>
+                setForm({ ...form, amount: Number(e.target.value) })
+              }
+              className={inputStyle}
+            />
+          </div>
+
           <input
-            type="date"
-            onChange={(e) => setForm({ ...form, date: e.target.value })}
+            value={form.description}
+            placeholder="Description"
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
             className={inputStyle}
           />
-          <input
-            type="number"
-            placeholder="Amount"
-            onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })}
-            className={inputStyle}
-          />
+
+          <div className="grid grid-cols-2 gap-3">
+            <select
+              value={form.category}
+              onChange={(e) =>
+                setForm({ ...form, category: e.target.value })
+              }
+              className={inputStyle}
+            >
+              {categories.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+
+            <select
+              value={form.type}
+              onChange={(e) =>
+                setForm({ ...form, type: e.target.value as any })
+              }
+              className={inputStyle}
+            >
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+            </select>
+          </div>
+
+          <button
+            onClick={handleSave}
+            className="bg-[#23a997] hover:opacity-90 text-white py-2 rounded-md text-xs mt-2"
+          >
+            {editingId ? "Update Transaction" : "Save Transaction"}
+          </button>
         </div>
+      )}
 
-        {/* Row 2 */}
-        <input
-          placeholder="Description"
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className={inputStyle}
-        />
+      {/* FILTERS */}
+      <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="grid gap-3 md:grid-cols-3">
+          <input
+            placeholder="Search By Description..."
+            onChange={(e) =>
+              setFilters({ ...filters, search: e.target.value })
+            }
+            className={inputStyle}
+          />
 
-        {/* Row 3 */}
-        <div className="grid grid-cols-2 gap-3">
           <select
-            onChange={(e) => setForm({ ...form, category: e.target.value })}
+            onChange={(e) =>
+              setFilters({ ...filters, type: e.target.value })
+            }
             className={inputStyle}
           >
+            <option value="all">All Types</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+
+          <select
+            onChange={(e) =>
+              setFilters({ ...filters, category: e.target.value })
+            }
+            className={inputStyle}
+          >
+            <option value="all">All Categories</option>
             {categories.map((c) => (
               <option key={c}>{c}</option>
             ))}
           </select>
-
-          <select
-            onChange={(e) => setForm({ ...form, type: e.target.value as any })}
-            className={inputStyle}
-          >
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
-          </select>
         </div>
 
-        {/* Action */}
-        <button
-          onClick={handleAdd}
-          className="bg-[#23a997] hover:opacity-90 text-white py-2 rounded-md text-xs mt-2"
-        >
-          Save Transaction
-        </button>
-      </div>
-    )}
-
-    {/* FILTERS */}
-    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-      <div className="grid gap-3 md:grid-cols-3">
-        <input placeholder="Search By Description..." onChange={(e) => setFilters({ ...filters, search: e.target.value })} className={inputStyle} />
-
-        <select onChange={(e) => setFilters({ ...filters, type: e.target.value })} className={inputStyle}>
-          <option value="all">All Types</option>
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
-
-        <select onChange={(e) => setFilters({ ...filters, category: e.target.value })} className={inputStyle}>
-          <option value="all">All Categories</option>
-          {categories.map((c) => (
-            <option key={c}>{c}</option>
-          ))}
-        </select>
+        <div className="grid gap-3 md:grid-cols-4 mt-3">
+          <input type="date" onChange={(e) => setFilters({ ...filters, from: e.target.value })} className={inputStyle} />
+          <input type="date" onChange={(e) => setFilters({ ...filters, to: e.target.value })} className={inputStyle} />
+          <input type="number" placeholder="Min $" onChange={(e) => setFilters({ ...filters, min: e.target.value })} className={inputStyle} />
+          <input type="number" placeholder="Max $" onChange={(e) => setFilters({ ...filters, max: e.target.value })} className={inputStyle} />
+        </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4 mt-3">
-        <input type="date" onChange={(e) => setFilters({ ...filters, from: e.target.value })} className={inputStyle} />
-        <input type="date" onChange={(e) => setFilters({ ...filters, to: e.target.value })} className={inputStyle} />
-        <input type="number" placeholder="Min $" onChange={(e) => setFilters({ ...filters, min: e.target.value })} className={inputStyle} />
-        <input type="number" placeholder="Max $" onChange={(e) => setFilters({ ...filters, max: e.target.value })} className={inputStyle} />
-      </div>
-    </div>
-
-    {/* TABLE */}
-    <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
-
-      {/* TABLE HEADER */}
-      <table className="w-full text-xs">
-        <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500">
-          <tr>
-            <th className="py-2 px-3 text-left w-[22%]">Date</th>
-            <th className="px-3 text-left w-[38%]">Description</th>
-            <th className="px-3 text-left w-[20%]">Category</th>
-            <th className="px-3 text-right w-[20%]">Amount</th>
-          </tr>
-        </thead>
-      </table>
-
-      {/* SCROLLABLE BODY */}
-      <div className="max-h-[150px] overflow-y-auto">
-        <table className="w-full text-xs table-fixed">
-          <tbody>
-            {sorted.map((t) => (
-              <tr
-                key={t.id}
-                className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                <td className="py-2 px-3 w-[22%]">
-                  {t.date}
-                </td>
-
-                <td className="px-3 w-[38%] truncate">
-                  {t.description}
-                </td>
-
-                <td className="px-3 w-[20%]">
-                  {t.category}
-                </td>
-
-                <td
-                  className={`px-3 text-right w-[20%] font-semibold ${t.type === "income" ? "text-green-500" : "text-red-500"
-                    }`}
-                >
-                  ${t.amount}
-                </td>
-              </tr>
-            ))}
-          </tbody>
+      {/* TABLE */}
+      <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+        <table className="w-full text-xs">
+          <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500">
+            <tr>
+              <th className="py-2 px-3 text-left">Date</th>
+              <th className="px-3 text-left">Description</th>
+              <th className="px-3 text-left">Category</th>
+              <th className="px-3 text-right">Amount</th>
+              <th className="px-3 text-right">Edit</th>
+            </tr>
+          </thead>
         </table>
+
+        <div className="max-h-[150px] overflow-y-auto">
+          <table className="w-full text-xs">
+            <tbody>
+              {sorted.map((t) => (
+                <tr
+                  key={t.id}
+                  className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  <td className="py-2 px-3">{t.date}</td>
+                  <td className="px-3">{t.description}</td>
+                  <td className="px-3">{t.category}</td>
+
+                  <td
+                    className={`px-3 text-right font-semibold ${t.type === "income"
+                      ? "text-green-500"
+                      : "text-red-500"
+                      }`}
+                  >
+                    ${t.amount}
+                  </td>
+
+                  <td className="px-3 text-right">
+                    <button
+                      onClick={() => {
+                        setForm(t);
+                        setEditingId(t.id);
+                        setShowForm(true);
+                      }}
+                      className="text-blue-500 text-xs hover:underline"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
-
   );
 }
