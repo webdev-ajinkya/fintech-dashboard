@@ -1,6 +1,6 @@
 "use client";
-import { dashboardData } from "@/mock/ssot";
-import { useState, useEffect } from "react";
+import { useDashboard } from "@/provider/DashboardContext";
+import { useState } from "react";
 
 type Transaction = {
   id: number;
@@ -15,8 +15,7 @@ const categories = ["Food", "Travel", "Shopping", "Bills", "Salary"];
 
 export default function TransactionTable() {
   // ✅ Load from localStorage (fallback to mock data)
-  const [transactions, setTransactions] = useState<Transaction[]>(dashboardData.transactions as Transaction[]);
-  const [mounted, setMounted] = useState(false);
+  const { transactions, setTransactions } = useDashboard();
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -39,25 +38,15 @@ export default function TransactionTable() {
     amount: 0,
     type: "expense",
   });
-  useEffect(() => {
-    const saved = localStorage.getItem("transactions");
-    if (saved) {
-      setTransactions(JSON.parse(saved));
-    }
-    setMounted(true);
-  }, []);
-  // ✅ Auto-save to localStorage
-  useEffect(() => {
-    localStorage.setItem("transactions", JSON.stringify(transactions));
-  }, [transactions]);
+
 
   // ✅ ADD + EDIT HANDLER
   const handleSave = () => {
     if (!form.date || !form.description) return;
 
     if (editingId) {
-      setTransactions((prev) =>
-        prev.map((t) =>
+      setTransactions((prev: Transaction[]) =>
+        prev.map((t: Transaction) =>
           t.id === editingId ? { ...form, id: editingId } : t
         )
       );
@@ -78,7 +67,7 @@ export default function TransactionTable() {
     });
   };
 
-  const filtered = transactions.filter((t) => {
+  const filtered = transactions.filter((t: Transaction) => {
     const tDate = new Date(t.date).getTime();
 
     if (

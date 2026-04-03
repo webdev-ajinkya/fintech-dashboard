@@ -8,18 +8,18 @@ import Savings from "../../../public/savings.png";
 import { formatCurrency, getStatColors } from "@/utils/charts";
 import SpendingChart from "../charts/SpendingChart";
 import TransactionTable from "../charts/TransactionTable";
-import { useDashboardData } from "@/hooks/useDashboardData";
+import { useDashboard } from "@/provider/DashboardContext";
 
 const icons = [Balance, Income, Expense, Savings];
 
 export default function Content({ children }: { children: React.ReactNode }) {
-    const { transactions } = useDashboardData();
+    const { transactions } = useDashboard();
 
     // ✅ Spending
-    const spending = Object.values(
+    const spending: { name: string; amount: number }[] = Object.values(
         transactions
-            .filter(t => t.type === "expense")
-            .reduce((acc, curr) => {
+            .filter((t: typeof transactions[number]) => t.type === "expense")
+            .reduce((acc: Record<string, { name: string; amount: number }>, curr: typeof transactions[number]) => {
                 if (!acc[curr.category]) {
                     acc[curr.category] = { name: curr.category, amount: 0 };
                 }
@@ -28,10 +28,10 @@ export default function Content({ children }: { children: React.ReactNode }) {
             }, {} as Record<string, { name: string; amount: number }>)
     );
 
-    const totalExpense = spending.reduce((acc, item) => acc + item.amount, 0);
+    const totalExpense = spending.reduce((acc: number, item: { name: string; amount: number }) => acc + item.amount, 0);
 
-    const topSpending = spending.length
-        ? spending.reduce((max, item) =>
+    const topSpending: { name: string; amount: number } = spending.length
+        ? spending.reduce((max: { name: string; amount: number }, item: { name: string; amount: number }) =>
             item.amount > max.amount ? item : max,
             spending[0]
         )
@@ -43,29 +43,31 @@ export default function Content({ children }: { children: React.ReactNode }) {
 
     // ✅ Income / Expense
     const income = transactions
-        .filter(t => t.type === "income")
-        .reduce((sum, t) => sum + t.amount, 0);
+        .filter((t: typeof transactions[number]) => t.type === "income")
+        .reduce((sum: number, t: typeof transactions[number]) => sum + t.amount, 0);
 
     const expense = transactions
-        .filter(t => t.type === "expense")
-        .reduce((sum, t) => sum + t.amount, 0);
+        .filter((t: typeof transactions[number]) => t.type === "expense")
+        .reduce((sum: number, t: typeof transactions[number]) => sum + t.amount, 0);
 
     // ✅ Month separation
     const currentMonth = "2026-03";
     const prevMonth = "2026-02";
 
-    const currentTx = transactions.filter(t => t.date.startsWith(currentMonth));
-    const prevTx = transactions.filter(t => t.date.startsWith(prevMonth));
+    const currentTx = transactions.filter((t: typeof transactions[number]) => t.date.startsWith(currentMonth));
+    const prevTx = transactions.filter((t: typeof transactions[number]) => t.date.startsWith(prevMonth));
 
     // ✅ Helpers
     const getTotals = (data: typeof transactions) => {
-        const income = data.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
-        const expense = data.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+        const income = data.filter((t: typeof transactions[number]) => t.type === "income").reduce((s: number, t: typeof transactions[number]) => s + t.amount, 0);
+        const expense = data.filter((t: typeof transactions[number]) => t.type === "expense").reduce((s: number, t: typeof transactions[number]) => s + t.amount, 0);
         return { income, expense, balance: income - expense };
     };
 
     const calcChange = (curr: number, prev: number) => {
-        if (prev === 0) return 0;
+        if (prev === 0) {
+            return curr === 0 ? 0 : 100; // or 999 if you want dramatic growth
+        }
         return ((curr - prev) / prev) * 100;
     };
 
@@ -170,7 +172,7 @@ export default function Content({ children }: { children: React.ReactNode }) {
                         </div>
 
                         <div className="space-y-2">
-                            {spending.map((item, i) => {
+                            {spending.map((item: { name: string; amount: number }, i: number) => {
                                 const colors = [
                                     "#6366f1",
                                     "#22c55e",

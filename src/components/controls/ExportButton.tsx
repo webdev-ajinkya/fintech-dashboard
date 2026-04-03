@@ -30,7 +30,7 @@ export default function ExportMenu({ data }: { data: any[] }) {
         hover:bg-gray-50 dark:hover:bg-gray-800 
         active:scale-95 transition-all duration-200"
             >
-                Export
+                Download Report
             </button>
 
             {/* Dropdown */}

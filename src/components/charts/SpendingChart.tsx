@@ -9,12 +9,12 @@ import {
 import { Pie } from "react-chartjs-2";
 
 import { groupByCategory } from "@/utils/dataHelpers";
-import { useDashboardData } from "@/hooks/useDashboardData";
+import { useDashboard } from "@/provider/DashboardContext";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function SpendingChart() {
-    const { transactions } = useDashboardData();
+    const { transactions } = useDashboard();
     const spending = groupByCategory(transactions);
     const chartData = {
         labels: spending.map((d) => d.name),

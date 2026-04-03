@@ -10,9 +10,9 @@ import {
     Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { groupByMonth } from "@/utils/dataHelpers";
-import { useDashboardData } from "@/hooks/useDashboardData";
+import { useDashboard } from "@/provider/DashboardContext";
 
 ChartJS.register(
     LineElement,
@@ -32,8 +32,8 @@ const formatCurrency = (value: number) => {
 export default function BalanceChart() {
     const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
 
-    const { transactions } = useDashboardData();
-    const monthly = groupByMonth(transactions);
+    const { transactions } = useDashboard();
+    const monthly = useMemo(() => groupByMonth(transactions), [transactions]);
     const data = {
         labels: monthly.map((m) => m.month),
         datasets: [
