@@ -8,6 +8,7 @@ import {
     PointElement,
     Tooltip,
     Legend,
+    Filler
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { useMemo, useState } from "react";
@@ -20,7 +21,8 @@ ChartJS.register(
     LinearScale,
     PointElement,
     Tooltip,
-    Legend
+    Legend,
+    Filler
 );
 
 const formatCurrency = (value: number) => {
