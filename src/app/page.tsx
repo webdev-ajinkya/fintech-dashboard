@@ -1,7 +1,7 @@
 'use client';
 import { Header, Sidebar } from "@/components";
-import Content from "@/components/layout/Content";
-import { DashboardProvider } from "@/provider/DashboardContext";
+import Content from "@/components/layout/Analytics";
+import { DashboardProvider } from "@/store/DashboardContext";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (

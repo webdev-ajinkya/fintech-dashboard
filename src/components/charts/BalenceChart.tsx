@@ -12,8 +12,9 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { useMemo, useState } from "react";
-import { groupByMonth } from "@/utils/dataHelpers";
-import { useDashboard } from "@/provider/DashboardContext";
+import { groupByMonth } from "@/lib/dataHelpers";
+import { useDashboard } from "@/store/DashboardContext";
+import { formatCurrency } from "@/lib/format";
 
 ChartJS.register(
     LineElement,
@@ -24,12 +25,6 @@ ChartJS.register(
     Legend,
     Filler
 );
-
-const formatCurrency = (value: number) => {
-    if (value >= 1_000_000) return `$${Math.round(value / 1_000_000)}M`;
-    if (value >= 1_000) return `$${Math.round(value / 1_000)}K`;
-    return `$${value}`;
-};
 
 const createGradient = (ctx: any, chartArea: any, color: string) => {
     const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);

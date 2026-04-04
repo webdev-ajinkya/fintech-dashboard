@@ -1,4 +1,4 @@
-import { useDashboard } from "@/provider/DashboardContext";
+import { useDashboard } from "@/store/DashboardContext";
 import { useState, useRef, useEffect } from "react";
 
 export function ProfileMenu() {

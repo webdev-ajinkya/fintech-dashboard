@@ -1,25 +1,24 @@
 "use client";
-import { useDashboard } from "@/provider/DashboardContext";
+import { useDashboard } from "@/store/DashboardContext";
+import { Transaction } from "@/types/transaction";
 import { useEffect, useState } from "react";
-
-type Transaction = {
-  id: number;
-  date: string;
-  description: string;
-  category: string;
-  amount: number;
-  type: "income" | "expense";
-};
 
 const categories = ["Food", "Travel", "Shopping", "Bills", "Salary"];
 
 export default function TransactionTable() {
-  // ✅ Load from localStorage (fallback to mock data)
   const { transactions, setTransactions, mode } = useDashboard();
   const isAdmin = mode === "admin";
+
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [searchInput, setSearchInput] = useState("");
+
+  // ✅ SORT
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  // ✅ PAGINATION
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const [filters, setFilters] = useState({
     search: "",
@@ -40,8 +39,6 @@ export default function TransactionTable() {
     type: "expense",
   });
 
-
-  // ✅ ADD + EDIT HANDLER
   const handleSave = () => {
     if (!form.date || !form.description) return;
 
@@ -52,7 +49,10 @@ export default function TransactionTable() {
         )
       );
     } else {
-      setTransactions([...transactions, { ...form, id: Date.now() }]);
+      setTransactions((prev: Transaction[]) => [
+        ...prev,
+        { ...form, id: Date.now() }
+      ]);
     }
 
     setShowForm(false);
@@ -90,10 +90,25 @@ export default function TransactionTable() {
     return true;
   });
 
-  const sorted = [...filtered].sort(
-    (a, b) =>
-      new Date(b.date).getTime() - new Date(a.date).getTime()
+  // ✅ SORT LOGIC
+  const sorted = [...filtered].sort((a, b) => {
+    const diff =
+      new Date(a.date).getTime() - new Date(b.date).getTime();
+    return sortOrder === "asc" ? diff : -diff;
+  });
+
+  // ✅ PAGINATION LOGIC
+  const totalPages = Math.ceil(sorted.length / itemsPerPage);
+
+  const paginatedData = sorted.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
+
+  // ✅ RESET PAGE ON FILTER CHANGE
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, searchInput]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -104,8 +119,7 @@ export default function TransactionTable() {
   }, [searchInput]);
 
   const inputStyle =
-    "p-2 text-xs rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-[#23a997]";
-
+    "px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-1 focus:ring-[#23a997]";
   return (
     <div className="lg:col-span-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-4">
 
@@ -134,9 +148,11 @@ export default function TransactionTable() {
 
           <div className="grid grid-cols-2 gap-3">
             <input
-              placeholder="Search By Description..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              type="date"
+              value={form.date}
+              onChange={(e) =>
+                setForm({ ...form, date: e.target.value })
+              }
               className={inputStyle}
             />
 
@@ -237,34 +253,40 @@ export default function TransactionTable() {
         </div>
       </div>
 
-      {/* TABLE */}
-      <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden max-h-[200px] overflow-y-auto">
+      {/* TABLE (NO SCROLL) */}
+      <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
         <table className="w-full text-xs">
-
-          <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 sticky top-0 z-10">
+          <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500">
             <tr>
-              <th className="py-2 px-3 text-left">Date</th>
+              <th
+                onClick={() =>
+                  setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+                }
+                className="py-2 px-3 text-left cursor-pointer select-none"
+              >
+                <div className="flex items-center gap-1">
+                  Date
+                  <span className="text-[10px]">
+                    {sortOrder === "asc" ? "▲" : "▼"}
+                  </span>
+                </div>
+              </th>
+
               <th className="px-3 text-left">Description</th>
               <th className="px-3 text-left">Category</th>
               <th className="px-3 text-right">Amount</th>
               {isAdmin && <th className="px-3 text-right">Edit</th>}
             </tr>
           </thead>
-          <tbody>
-            {sorted.length ? (
-              sorted.map((t) => (
-                <tr
-                  key={t.id}
-                  className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
-                  <td className="py-2 px-3 text-left">{t.date}</td>
-                  <td className="px-3 text-left">{t.description}</td>
-                  <td className="px-3 text-left">{t.category}</td>
 
-                  <td
-                    className={`px-3 text-right font-semibold ${t.type === "income" ? "text-green-500" : "text-red-500"
-                      }`}
-                  >
+          <tbody>
+            {paginatedData.length ? (
+              paginatedData.map((t) => (
+                <tr key={t.id} className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <td className="py-2 px-3">{t.date}</td>
+                  <td className="px-3">{t.description}</td>
+                  <td className="px-3">{t.category}</td>
+                  <td className={`px-3 text-right font-semibold ${t.type === "income" ? "text-green-500" : "text-red-500"}`}>
                     ${t.amount}
                   </td>
 
@@ -286,17 +308,37 @@ export default function TransactionTable() {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan={isAdmin ? 5 : 4}
-                  className="py-10 text-center align-middle text-gray-500 dark:text-gray-400"
-                >
+                <td colSpan={isAdmin ? 5 : 4} className="py-10 text-center text-gray-500 dark:text-gray-400">
                   No transactions found
                 </td>
               </tr>
             )}
           </tbody>
-
         </table>
+      </div>
+
+      <div className="flex justify-between items-center mt-3 text-xs">
+        <button
+          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        <span className="text-gray-500">
+          Page {currentPage} of {totalPages || 1}
+        </span>
+
+        <button
+          onClick={() =>
+            setCurrentPage((p) => Math.min(p + 1, totalPages))
+          }
+          disabled={currentPage === totalPages || totalPages === 0}
+          className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

@@ -8,8 +8,8 @@ import {
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
 
-import { groupByCategory } from "@/utils/dataHelpers";
-import { useDashboard } from "@/provider/DashboardContext";
+import { groupByCategory } from "@/lib/dataHelpers";
+import { useDashboard } from "@/store/DashboardContext";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 

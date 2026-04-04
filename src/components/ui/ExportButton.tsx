@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { exportToCSV, exportToJSON } from "@/utils/exportFiles";;
+import { exportToCSV, exportToJSON } from "@/lib/exportFiles";;
 
 export default function ExportMenu({ data }: { data: any[] }) {
     const [open, setOpen] = useState(false);

@@ -1,4 +1,4 @@
-import ThemeToggle from "../controls/ThemeToggle";
+import ThemeToggle from "../ui/ThemeToggle";
 import { ProfileMenu } from "./Profile";
 
 export default function Header() {

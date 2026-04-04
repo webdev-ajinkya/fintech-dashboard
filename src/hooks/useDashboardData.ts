@@ -6,34 +6,34 @@ import { dashboardData as mockData } from "@/mock/ssot";
 export function useDashboardData() {
     const [transactions, setTransactions] = useState(mockData.transactions);
 
-    // ✅ NEW: role mode
+    //  NEW: role mode
     const [mode, setMode] = useState<"admin" | "view">("view");
 
-    // ✅ Load once
+    //  Load once
     useEffect(() => {
         const stored = localStorage.getItem("transactions");
         if (stored) {
             setTransactions(JSON.parse(stored));
         }
 
-        // ✅ load mode
+        //  load mode
         const storedMode = localStorage.getItem("mode");
         if (storedMode) {
             setMode(storedMode as "admin" | "view");
         }
     }, []);
 
-    // ✅ Persist transactions
+    //  Persist transactions
     useEffect(() => {
         localStorage.setItem("transactions", JSON.stringify(transactions));
     }, [transactions]);
 
-    // ✅ Persist mode
+    //  Persist mode
     useEffect(() => {
         localStorage.setItem("mode", mode);
     }, [mode]);
 
-    // ✅ Sync multi-tab
+    //  Sync multi-tab
     useEffect(() => {
         const sync = () => {
             const stored = localStorage.getItem("transactions");
@@ -51,6 +51,6 @@ export function useDashboardData() {
         return () => window.removeEventListener("storage", sync);
     }, []);
 
-    // ✅ expose everything
+    //  expose everything
     return { transactions, setTransactions, mode, setMode };
 }
