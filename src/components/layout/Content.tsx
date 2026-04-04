@@ -14,6 +14,7 @@ const icons = [Balance, Income, Expense, Savings];
 
 export default function Content({ children }: { children: React.ReactNode }) {
     const { transactions } = useDashboard();
+    const safeTransactions = transactions ?? [];
 
     // ✅ Spending
     const spending: { name: string; amount: number }[] = Object.values(
@@ -156,7 +157,16 @@ export default function Content({ children }: { children: React.ReactNode }) {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                     <div className="lg:col-span-2 min-h-[300px] h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col">
-                        <BalanceChart />
+                        {safeTransactions.length ? <BalanceChart /> : (
+                            <>
+                                <h3 className="text-sm font-medium dark:text-gray-300">
+                                    Balance Trend
+                                </h3>
+                                <div className="flex flex-col items-center justify-center h-full">
+                                    <p className="text-sm text-gray-500 text-center mt-10">No data available</p>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-4">
@@ -167,7 +177,11 @@ export default function Content({ children }: { children: React.ReactNode }) {
 
                         <div className="h-52 flex items-center justify-center">
                             <div className="w-44 h-44">
-                                <SpendingChart />
+                                {spending.length ? <SpendingChart /> : (
+                                    <div className="flex items-center justify-center h-full">
+                                        <p className="text-sm text-gray-500">No spending data</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -205,7 +219,7 @@ export default function Content({ children }: { children: React.ReactNode }) {
 
                     <div className="h-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-4 flex flex-col gap-3">
                         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                            Insights
+                            Key Insights
                         </h3>
 
                         <div className="p-4 rounded-lg bg-gray-100 dark:bg-gray-800 flex justify-between items-center">
@@ -228,9 +242,14 @@ export default function Content({ children }: { children: React.ReactNode }) {
                                     Growth
                                 </p>
                             </div>
-                            <p className="text-sm font-semibold text-green-500">
-                                ${income}
-                            </p>
+                            <div className="flex flex-col items-end">
+                                <p className="text-sm font-semibold text-green-500">
+                                    ${income}
+                                </p>
+                                <span className="text-[10px] text-gray-400">
+                                    vs last month
+                                </span>
+                            </div>
                         </div>
 
                         {/* Expense Trend */}
@@ -241,9 +260,14 @@ export default function Content({ children }: { children: React.ReactNode }) {
                                     Reduction
                                 </p>
                             </div>
-                            <p className="text-sm font-semibold text-red-500">
-                                ${expense}
-                            </p>
+                            <div className="flex flex-col items-end">
+                                <p className="text-sm font-semibold text-green-500">
+                                    ${expense}
+                                </p>
+                                <span className="text-[10px] text-gray-400">
+                                    vs last month
+                                </span>
+                            </div>
                         </div>
 
                         {/* Avg Expense */}

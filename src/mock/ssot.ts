@@ -3,22 +3,25 @@ export const dashboardData = {
 
     transactions: [
         // 🔵 PREVIOUS MONTH (FEB)
-        { id: 1775123491823, date: "2026-02-05", description: "Salary", category: "Salary", amount: 1800, type: "income" },
-        { id: 1775189234567, date: "2026-02-10", description: "Freelance", category: "Salary", amount: 600, type: "income" },
-        { id: 1775234567891, date: "2026-02-12", description: "Groceries", category: "Food", amount: 500, type: "expense" },
-        { id: 1775289123456, date: "2026-02-15", description: "Shopping", category: "Shopping", amount: 700, type: "expense" },
-        { id: 1775345678123, date: "2026-02-18", description: "Travel", category: "Travel", amount: 600, type: "expense" },
-        { id: 1775398123456, date: "2026-02-20", description: "Bills", category: "Bills", amount: 350, type: "expense" },
+        { id: 2875123491823, date: "2026-02-03", description: "Salary", category: "Salary", amount: 2000, type: "income" },
+        { id: 2875189234567, date: "2026-02-08", description: "Freelance Project", category: "Salary", amount: 400, type: "income" },
 
-        // 🟢 CURRENT MONTH (MAR) → POSITIVE STATE
-        { id: 1776012345678, date: "2026-03-05", description: "Salary", category: "Salary", amount: 2500, type: "income" },
-        { id: 1776123456789, date: "2026-03-15", description: "Freelance", category: "Salary", amount: 1200, type: "income" },
+        { id: 2875234567891, date: "2026-02-10", description: "Groceries", category: "Food", amount: 650, type: "expense" },
+        { id: 2875289123456, date: "2026-02-14", description: "Clothes Shopping", category: "Shopping", amount: 900, type: "expense" },
+        { id: 2875345678123, date: "2026-02-17", description: "Weekend Trip", category: "Travel", amount: 750, type: "expense" },
+        { id: 2875398123456, date: "2026-02-21", description: "Internet Bill", category: "Bills", amount: 200, type: "expense" },
+        { id: 2875456789123, date: "2026-02-25", description: "Dining", category: "Food", amount: 300, type: "expense" },
 
-        { id: 1776056789123, date: "2026-03-05", description: "Groceries", category: "Food", amount: 400, type: "expense" },
-        { id: 1776189234561, date: "2026-03-12", description: "Online Shopping", category: "Shopping", amount: 600, type: "expense" },
-        { id: 1776234567890, date: "2026-03-18", description: "Trip", category: "Travel", amount: 500, type: "expense" },
-        { id: 1776289123457, date: "2026-03-22", description: "Electricity Bill", category: "Bills", amount: 300, type: "expense" },
-        { id: 1776345678124, date: "2026-03-25", description: "Dining Out", category: "Food", amount: 250, type: "expense" },
+        // 🟢 CURRENT MONTH (MAR)
+        { id: 2876012345678, date: "2026-03-04", description: "Salary", category: "Salary", amount: 2600, type: "income" },
+        { id: 2876123456789, date: "2026-03-10", description: "Freelance App", category: "Salary", amount: 900, type: "income" },
+
+        { id: 2876056789123, date: "2026-03-06", description: "Groceries", category: "Food", amount: 450, type: "expense" },
+        { id: 2876189234561, date: "2026-03-11", description: "Amazon Order", category: "Shopping", amount: 500, type: "expense" },
+        { id: 2876234567890, date: "2026-03-16", description: "Cab & Travel", category: "Travel", amount: 300, type: "expense" },
+        { id: 2876289123457, date: "2026-03-20", description: "Electric Bill", category: "Bills", amount: 280, type: "expense" },
+        { id: 2876345678124, date: "2026-03-24", description: "Restaurant", category: "Food", amount: 350, type: "expense" },
+        { id: 2876401234567, date: "2026-03-27", description: "Gym Membership", category: "Bills", amount: 150, type: "expense" },
     ],
 
     categories: [
@@ -29,3 +32,9 @@ export const dashboardData = {
         { name: "Salary", color: "#3b82f6" },
     ],
 };
+
+// export const dashboardData = {
+//     currency: "USD",
+//     transactions: [],
+//     categories: [],
+// };

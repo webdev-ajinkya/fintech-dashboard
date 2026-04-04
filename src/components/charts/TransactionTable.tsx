@@ -1,6 +1,6 @@
 "use client";
 import { useDashboard } from "@/provider/DashboardContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Transaction = {
   id: number;
@@ -19,6 +19,7 @@ export default function TransactionTable() {
   const isAdmin = mode === "admin";
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [searchInput, setSearchInput] = useState("");
 
   const [filters, setFilters] = useState({
     search: "",
@@ -94,6 +95,14 @@ export default function TransactionTable() {
       new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, search: searchInput }));
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   const inputStyle =
     "p-2 text-xs rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-[#23a997]";
 
@@ -125,11 +134,9 @@ export default function TransactionTable() {
 
           <div className="grid grid-cols-2 gap-3">
             <input
-              type="date"
-              value={form.date}
-              onChange={(e) =>
-                setForm({ ...form, date: e.target.value })
-              }
+              placeholder="Search By Description..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className={inputStyle}
             />
 
@@ -243,40 +250,50 @@ export default function TransactionTable() {
               {isAdmin && <th className="px-3 text-right">Edit</th>}
             </tr>
           </thead>
-
           <tbody>
-            {sorted.map((t) => (
-              <tr
-                key={t.id}
-                className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                <td className="py-2 px-3 text-left">{t.date}</td>
-                <td className="px-3 text-left">{t.description}</td>
-                <td className="px-3 text-left">{t.category}</td>
-
-                <td
-                  className={`px-3 text-right font-semibold ${t.type === "income" ? "text-green-500" : "text-red-500"
-                    }`}
+            {sorted.length ? (
+              sorted.map((t) => (
+                <tr
+                  key={t.id}
+                  className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
-                  ${t.amount}
-                </td>
+                  <td className="py-2 px-3 text-left">{t.date}</td>
+                  <td className="px-3 text-left">{t.description}</td>
+                  <td className="px-3 text-left">{t.category}</td>
 
-                {isAdmin && (
-                  <td className="px-3 text-right">
-                    <button
-                      onClick={() => {
-                        setForm(t);
-                        setEditingId(t.id);
-                        setShowForm(true);
-                      }}
-                      className="text-blue-500 text-xs hover:underline"
-                    >
-                      Edit
-                    </button>
+                  <td
+                    className={`px-3 text-right font-semibold ${t.type === "income" ? "text-green-500" : "text-red-500"
+                      }`}
+                  >
+                    ${t.amount}
                   </td>
-                )}
+
+                  {isAdmin && (
+                    <td className="px-3 text-right">
+                      <button
+                        onClick={() => {
+                          setForm(t);
+                          setEditingId(t.id);
+                          setShowForm(true);
+                        }}
+                        className="text-blue-500 text-xs hover:underline"
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={isAdmin ? 5 : 4}
+                  className="py-10 text-center align-middle text-gray-500 dark:text-gray-400"
+                >
+                  No transactions found
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
 
         </table>

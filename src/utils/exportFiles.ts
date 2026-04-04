@@ -1,6 +1,11 @@
 export function exportToCSV(data: any[], filename = "data.csv") {
+    if (!data || !data.length) {
+        window.alert("No data to export");
+        return;
+    }
+
     const csv = [
-        Object.keys(data[0]).join(","), 
+        Object.keys(data[0]).join(","),
         ...data.map(row => Object.values(row).join(","))
     ].join("\n");
 
@@ -12,6 +17,11 @@ export function exportToCSV(data: any[], filename = "data.csv") {
 }
 
 export function exportToJSON(data: any[], filename = "data.json") {
+    if (!data || !data.length) {
+        window.alert("No data to export");
+        return;
+    }
+
     const blob = new Blob([JSON.stringify(data, null, 2)], {
         type: "application/json",
     });
