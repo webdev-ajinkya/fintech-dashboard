@@ -8,7 +8,7 @@ export function computeDashboard(transactions: Transaction[]) {
   const monthlyMap: Record<string, { income: number; expense: number }> = {};
 
   transactions.forEach((t) => {
-    const month = t.date.slice(0, 7); // YYYY-MM
+    const month = t.date.slice(0, 7);
 
     if (!monthlyMap[month]) {
       monthlyMap[month] = { income: 0, expense: 0 };
@@ -71,7 +71,6 @@ export function computeDashboard(transactions: Transaction[]) {
     balanceChange: calcChange(current?.balance, previous?.balance),
   };
 
-  // 🔍 Insights
   const insights: string[] = [];
 
   if (topSpending) {

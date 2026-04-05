@@ -13,7 +13,6 @@ import { formatCurrency } from "@/lib/format";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function SpendingChart() {
-    // ✅ USE SSOT
     const { analytics } = useDashboard();
     const spending = analytics.spending;
 

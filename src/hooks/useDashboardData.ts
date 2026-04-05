@@ -44,7 +44,6 @@ export function useDashboardData() {
         return () => window.removeEventListener("storage", sync);
     }, []);
 
-    // 🔥 CENTRAL ANALYTICS
     const analytics = useMemo(
         () => computeDashboard(transactions),
         [transactions]

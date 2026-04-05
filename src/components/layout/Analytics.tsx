@@ -3,7 +3,6 @@
 import BalanceImg from "../../../public/balance.png";
 import Income from "../../../public/income.png";
 import Expense from "../../../public/expense.png";
-import Savings from "../../../public/savings.png";
 
 import { useDashboard } from "@/store/DashboardContext";
 import { getStatColors } from "@/lib/charts";
@@ -15,7 +14,7 @@ import Spend from "./dashboard/Spend";
 import Transaction from "./dashboard/Transaction";
 import Insight from "./dashboard/Insight";
 
-const icons = [BalanceImg, Income, Expense, Savings];
+const icons = [BalanceImg, Income, Expense];
 
 export default function Analytics({ children }: { children: React.ReactNode }) {
     const { transactions, analytics } = useDashboard();
@@ -24,8 +23,6 @@ export default function Analytics({ children }: { children: React.ReactNode }) {
         spending,
         topSpending,
         avgExpense,
-        totalIncome,
-        totalExpense,
         monthly,
         trends,
     } = analytics;
@@ -33,12 +30,6 @@ export default function Analytics({ children }: { children: React.ReactNode }) {
     const safeTransactions = transactions ?? [];
 
     const current = monthly[monthly.length - 1] || {
-        income: 0,
-        expense: 0,
-        balance: 0,
-    };
-
-    const previous = monthly[monthly.length - 2] || {
         income: 0,
         expense: 0,
         balance: 0,
@@ -124,8 +115,6 @@ export default function Analytics({ children }: { children: React.ReactNode }) {
 
                     <Insight
                         topSpending={topSpending || { name: "-", amount: 0 }}
-                        income={totalIncome}
-                        expense={totalExpense}
                         avgExpense={avgExpense}
                         trends={trends}
                     />

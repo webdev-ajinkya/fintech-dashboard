@@ -28,8 +28,8 @@ ChartJS.register(
 
 const createGradient = (ctx: any, chartArea: any, color: string) => {
     const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-    gradient.addColorStop(0, color);          // top (slightly visible)
-    gradient.addColorStop(1, "rgba(255,255,255,0)"); // fade to transparent
+    gradient.addColorStop(0, color);          
+    gradient.addColorStop(1, "rgba(255,255,255,0)"); 
     return gradient;
 };
 

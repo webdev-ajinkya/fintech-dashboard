@@ -4,7 +4,6 @@ export function groupByMonth(data: any[]) {
     data.forEach((t) => {
         const date = new Date(t.date);
 
-        // format: "Jan", "Feb", etc.
         const month = date.toLocaleString("default", { month: "short" });
 
         if (!map[month]) {

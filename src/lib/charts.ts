@@ -6,7 +6,6 @@ export const getStatColors = (
 ) => {
     const isBadState = income < expense;
 
-    // 🔴 Global bad state
     if (isBadState) {
         return {
             text: "text-red-500",

@@ -13,10 +13,8 @@ export default function TransactionTable() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [searchInput, setSearchInput] = useState("");
 
-  // ✅ SORT
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-  // ✅ PAGINATION
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -90,14 +88,12 @@ export default function TransactionTable() {
     return true;
   });
 
-  // ✅ SORT LOGIC
   const sorted = [...filtered].sort((a, b) => {
     const diff =
       new Date(a.date).getTime() - new Date(b.date).getTime();
     return sortOrder === "asc" ? diff : -diff;
   });
 
-  // ✅ PAGINATION LOGIC
   const totalPages = Math.ceil(sorted.length / itemsPerPage);
 
   const paginatedData = sorted.slice(
@@ -105,7 +101,6 @@ export default function TransactionTable() {
     currentPage * itemsPerPage
   );
 
-  // ✅ RESET PAGE ON FILTER CHANGE
   useEffect(() => {
     setCurrentPage(1);
   }, [filters, searchInput]);
