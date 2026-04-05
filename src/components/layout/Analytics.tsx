@@ -127,6 +127,7 @@ export default function Analytics({ children }: { children: React.ReactNode }) {
                         income={totalIncome}
                         expense={totalExpense}
                         avgExpense={avgExpense}
+                        trends={trends}
                     />
                 </div>
 

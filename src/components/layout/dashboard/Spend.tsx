@@ -38,7 +38,7 @@ export default function Spend({ spending }: { spending: any[] }) {
                             </div>
 
                             <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                ${item.amount}
+                                ${item.amount.toFixed(2)}
                             </span>
                         </div>
                     );
