@@ -60,7 +60,7 @@ export default function Analytics({ children }: { children: React.ReactNode }) {
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto bg-gray-100 dark:bg-gray-950 transition">
 
             {/* HEADER */}
-            <div className="max-w-7xl mx-auto flex justify-between items-center mb-4">
+            <div className="max-w-8xl mx-auto flex justify-between items-center mb-4">
                 <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                     Dashboard Overview
                 </h2>
