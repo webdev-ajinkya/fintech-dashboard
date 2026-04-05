@@ -64,7 +64,7 @@ export default function Insight({
                     </p>
                 </div>
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    ${avgExpense}
+                    ${avgExpense.toFixed(2)}
                 </p>
             </div>
         </div>

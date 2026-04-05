@@ -1,56 +1,60 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { dashboardData as mockData } from "@/mock/ssot";
+import { computeDashboard } from "@/lib/analytics";
+import { Transaction } from "@/types/transaction";
 
 export function useDashboardData() {
-    const [transactions, setTransactions] = useState(mockData.transactions);
+    const [transactions, setTransactions] = useState<Transaction[]>(
+        mockData.transactions as Transaction[]
+    );
 
-    //  NEW: role mode
     const [mode, setMode] = useState<"admin" | "view">("view");
 
-    //  Load once
     useEffect(() => {
         const stored = localStorage.getItem("transactions");
-        if (stored) {
-            setTransactions(JSON.parse(stored));
-        }
+        if (stored) setTransactions(JSON.parse(stored) as Transaction[]);
 
-        //  load mode
         const storedMode = localStorage.getItem("mode");
-        if (storedMode) {
-            setMode(storedMode as "admin" | "view");
-        }
+        if (storedMode) setMode(storedMode as any);
     }, []);
 
-    //  Persist transactions
     useEffect(() => {
-        localStorage.setItem("transactions", JSON.stringify(transactions));
+        localStorage.setItem(
+            "transactions",
+            JSON.stringify(transactions)
+        );
     }, [transactions]);
 
-    //  Persist mode
     useEffect(() => {
         localStorage.setItem("mode", mode);
     }, [mode]);
 
-    //  Sync multi-tab
     useEffect(() => {
         const sync = () => {
             const stored = localStorage.getItem("transactions");
-            if (stored) {
-                setTransactions(JSON.parse(stored));
-            }
+            if (stored) setTransactions(JSON.parse(stored) as Transaction[]);
 
             const storedMode = localStorage.getItem("mode");
-            if (storedMode) {
-                setMode(storedMode as "admin" | "view");
-            }
+            if (storedMode) setMode(storedMode as any);
         };
 
         window.addEventListener("storage", sync);
         return () => window.removeEventListener("storage", sync);
     }, []);
 
-    //  expose everything
-    return { transactions, setTransactions, mode, setMode };
+    // 🔥 CENTRAL ANALYTICS
+    const analytics = useMemo(
+        () => computeDashboard(transactions),
+        [transactions]
+    );
+
+    return {
+        transactions,
+        setTransactions,
+        mode,
+        setMode,
+        analytics,
+    };
 }

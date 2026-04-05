@@ -7,20 +7,23 @@ import {
     Legend,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
-
-import { groupByCategory } from "@/lib/dataHelpers";
 import { useDashboard } from "@/store/DashboardContext";
+import { formatCurrency } from "@/lib/format";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function SpendingChart() {
-    const { transactions } = useDashboard();
-    const spending = groupByCategory(transactions);
+    // ✅ USE SSOT
+    const { analytics } = useDashboard();
+    const spending = analytics.spending;
+
+    const total = spending.reduce((sum: number, s: { name: string; amount: number }) => sum + s.amount, 0);
+
     const chartData = {
-        labels: spending.map((d) => d.name),
+        labels: spending.map((d: { name: string; amount: number }) => d.name),
         datasets: [
             {
-                data: spending.map((d) => d.amount),
+                data: spending.map((d: { name: string; amount: number }) => d.amount),
                 backgroundColor: [
                     "#6366f1",
                     "#22c55e",
@@ -39,13 +42,10 @@ export default function SpendingChart() {
             tooltip: {
                 callbacks: {
                     label: function (context: any) {
-                        const data = context.dataset.data;
-                        const total = data.reduce((sum: number, val: number) => sum + val, 0);
-
                         const value = context.raw;
                         const percentage = ((value / total) * 100).toFixed(1);
 
-                        return `${context.label}: ${percentage}%`;
+                        return `${context.label}: ${formatCurrency(value)} (${percentage}%)`;
                     },
                 },
             },
